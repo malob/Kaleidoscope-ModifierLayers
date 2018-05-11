@@ -3,19 +3,18 @@
 #include <Kaleidoscope.h>
 
 namespace kaleidoscope {
-class ModifierLayers : public KaleidoscopePlugin {
+class ModifierLayers : public kaleidoscope::Plugin {
 public:
     typedef struct {
         uint8_t modifier_mask;
         uint8_t original_layer;
         uint8_t overlay_layer;
     } overlay_t;
-    ModifierLayers(void);
+    ModifierLayers(void) {}
 
-    void begin(void) final;
-
-    static Key eventHandlerHook(Key mapped_key, byte row, byte col, uint8_t key_state);
-    static void loopHook(bool is_post_clear);
+    EventHandlerResult onKeyswitchEvent(Key &mapped_key, byte row, byte col, uint8_t key_state);
+    EventHandlerResult beforeReportingState();
+    EventHandlerResult afterEachCycle();
 
     static const overlay_t *overlays;
 private:

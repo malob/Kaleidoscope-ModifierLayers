@@ -46,9 +46,10 @@ static const kaleidoscope::ModifierLayers::overlay_t overlays[] = {
   {0, 0, 0}
 };
 
+KALEIDOSCOPE_INIT_PLUGINS(ModifierLayers);
+
 void setup() {
   Kaleidoscope.setup();
-  Kaleidoscope.use(&ModifierLayers);
   ModifierLayers.overlays = overlays;
 }
 ```
