@@ -12,7 +12,7 @@ public:
     } overlay_t;
     ModifierLayers(void) {}
 
-    EventHandlerResult onKeyswitchEvent(Key &mapped_key, byte row, byte col, uint8_t key_state);
+    EventHandlerResult onKeyswitchEvent(Key &mapped_key, KeyAddr key_addr, uint8_t key_state);
     EventHandlerResult beforeReportingState();
     EventHandlerResult afterEachCycle();
 
