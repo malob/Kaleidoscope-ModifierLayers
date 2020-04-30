@@ -11,7 +11,7 @@ uint8_t ModifierLayers::mod_locked_unheld_next = 0;
 uint8_t ModifierLayers::mod_is_pressed_directly = 0;
 uint8_t ModifierLayers::mod_was_pressed_directly = 0;
 
-uint8_t ModifierLayers::live_unheld_required[ROWS][COLS];
+uint8_t ModifierLayers::live_unheld_required[Kaleidoscope.device().matrix_rows][Kaleidoscope.device().matrix_columns];
 
 inline uint8_t flagsToModifierMask(uint8_t flags) {
     // TODO(nikita): it may be better to also incorporate
@@ -32,15 +32,15 @@ EventHandlerResult ModifierLayers::onKeyswitchEvent(Key &mapped_key, KeyAddr key
     }
 
     if (keyIsPressed(key_state)
-    && (!mapped_key.flags)
-    && (mapped_key.keyCode >= HID_KEYBOARD_FIRST_MODIFIER)
-    && (mapped_key.keyCode <= HID_KEYBOARD_LAST_MODIFIER)) {
+    && (!mapped_key.getFlags())
+    && (mapped_key.getKeyCode() >= HID_KEYBOARD_FIRST_MODIFIER)
+    && (mapped_key.getKeyCode() <= HID_KEYBOARD_LAST_MODIFIER)) {
         mod_is_pressed_directly |= LAYER_MODIFIER_KEY(mapped_key);
         return EventHandlerResult::OK;
     }
 
     // Don't handle synthetic keys
-    if ((mapped_key.flags & SYNTHETIC)) {
+    if ((mapped_key.getFlags() & SYNTHETIC)) {
         return EventHandlerResult::OK;
     }
 
@@ -60,7 +60,7 @@ EventHandlerResult ModifierLayers::onKeyswitchEvent(Key &mapped_key, KeyAddr key
                 modifier_mask = overlays[index].modifier_mask;
             }
         }
-        live_unheld_required[key_addr.row()][key_addr.col()] = modifier_mask & ~flagsToModifierMask(mapped_key.flags);
+        live_unheld_required[key_addr.row()][key_addr.col()] = modifier_mask & ~flagsToModifierMask(mapped_key.getFlags());
     } else if (keyToggledOff(key_state)) {
         // In theory this should not be necessary, but do it just in case the
         // next keyToggledOn event for this key doesn't reach this handler
@@ -72,7 +72,7 @@ EventHandlerResult ModifierLayers::onKeyswitchEvent(Key &mapped_key, KeyAddr key
     uint8_t held_required = ~unheld_required & mod_was_pressed_directly;
 
     if ((unheld_required & mod_locked_held) || (held_required & mod_locked_unheld)) {
-        KeyboardHardware.maskKey(key_addr);
+        Kaleidoscope.device().maskKey(key_addr);
         return EventHandlerResult::EVENT_CONSUMED;
     }
 
@@ -89,7 +89,7 @@ EventHandlerResult ModifierLayers::beforeReportingState() {
     for (byte index = 0; index < 8; index++) {
         if (mod_locked_unheld_next & ((uint8_t)1 << index)) {
             uint8_t key_code = index + HID_KEYBOARD_FIRST_MODIFIER;
-            kaleidoscope::hid::releaseRawKey({ key_code, KEY_FLAGS });
+            Kaleidoscope.hid().keyboard().releaseRawKey({ key_code, KEY_FLAGS });
         }
     }
 
